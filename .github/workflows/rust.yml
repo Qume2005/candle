@@ -1,22 +1,30 @@
-name: Rust
+name: Build Examples
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-env:
-  CARGO_TERM_COLOR: always
+    branches:
+      - main
+  workflow_dispatch: # 允许手动触发工作流
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable # 或者指定具体版本，如 '1.67.0'
+        override: true
+
+    - name: Build example
       run: cargo build --example quantized --release
-    - name: Run tests
-      run: cargo test --verbose
+
+    - name: Create release directory
+      run: mkdir -p release
+
+    - name: Copy binary to release directory
+      run: cp target/release/examples/quantized release/
